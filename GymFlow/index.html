@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GymFlow FINAL</title>
+    <title>GymFlow V7</title>
     <link rel="manifest" href="./manifest.json">
     <link rel="icon" href="icon-192.png">
     <meta name="theme-color" content="#0f172a">
@@ -31,11 +31,13 @@
         .bub.checked { background: var(--s); color: #000; border-color: var(--s); }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 3000; justify-content: center; align-items: center; }
         .m-content { background: var(--c); width: 90%; max-width: 450px; padding: 20px; border-radius: 15px; border: 1px solid var(--p); }
+        .peso-container { background: var(--c); padding: 20px; border-radius: 20px; margin-top: 30px; }
+        input[type="number"] { background: #0f172a; color: white; border: none; padding: 12px; border-radius: 8px; width: 60%; margin-bottom: 10px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <header style="text-align: center; margin-bottom: 30px;"><h1 style="color: var(--p);">GymFlow <small style="font-size: 12px; opacity: 0.5;">FINAL</small></h1></header>
+        <header style="text-align: center; margin-bottom: 30px;"><h1 style="color: var(--p);">GymFlow <small style="font-size: 12px; opacity: 0.5;">V7</small></h1></header>
         <div class="stats-grid">
             <div class="stat-card">
                 <small>Meta do Desafio</small>
@@ -61,7 +63,16 @@
                 <button onclick="move(1)" style="background:var(--c); color:white; width:45px; height:45px; border-radius:50%; border:1px solid #334155;">❯</button>
             </div>
         </div>
-        <div style="background: var(--c); padding: 20px; border-radius: 20px; margin-top: 30px;"><h3>Peso</h3><canvas id="chart" height="150"></canvas></div>
+
+        <div class="peso-container">
+            <h3>Evolução de Peso</h3>
+            <div style="display:flex; gap:10px; align-items: center;">
+                <input type="number" id="pesoInp" placeholder="kg">
+                <button onclick="addP()" style="background: var(--p); color: white; padding: 12px; border-radius: 8px; border:none; flex:1; font-weight:bold;">SALVAR</button>
+            </div>
+            <canvas id="chart" height="150" style="margin-top:15px;"></canvas>
+        </div>
+
         <button onclick="reset()" style="background:transparent; color:var(--d); border:1px solid var(--d); width:100%; padding:12px; border-radius:10px; margin-top:40px; font-weight:bold; cursor:pointer;">⚠️ RESETAR TUDO</button>
     </div>
 
@@ -84,10 +95,10 @@
             'C': [{ id: 'c1', nome: "Leg Press", kg: 120, sets: 4, img: "https://images.unsplash.com/photo-1574673130329-274efb4408bc?w=400" }]
         };
 
-        let est = JSON.parse(localStorage.getItem('GF_FINAL')) || { treinos: def, sets: {}, dias: [], peso: [], datasP: [], inicio: new Date().toISOString().split('T')[0], lim: "" };
-        let tAtivo = null; let curIdx = 0;
+        let est = JSON.parse(localStorage.getItem('GF_V7')) || { treinos: def, sets: {}, dias: [], peso: [], datasP: [], inicio: new Date().toISOString().split('T')[0], lim: "" };
+        let tAtivo = null; let curIdx = 0; let chart;
 
-        function save() { localStorage.setItem('GF_FINAL', JSON.stringify(est)); }
+        function save() { localStorage.setItem('GF_V7', JSON.stringify(est)); }
         function reset() { if(confirm("Resetar?")){ localStorage.clear(); location.reload(); } }
         
         function selT(l) { 
@@ -137,13 +148,28 @@
             } else { document.getElementById('cont').innerText = est.dias.length; }
         }
 
+        function addP() {
+            const p = document.getElementById('pesoInp').value;
+            if(!p) return;
+            est.datasP.push(new Date().toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'}));
+            est.peso.push(p);
+            save();
+            document.getElementById('pesoInp').value = '';
+            chart.update();
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('chart').getContext('2d');
+            chart = new Chart(ctx, { type: 'line', data: { labels: est.datasP, datasets: [{ label: 'kg', data: est.peso, borderColor: '#3b82f6', tension: 0.4, fill: true, backgroundColor: 'rgba(59,130,246,0.1)' }] }, options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: false } } } });
+        }
+
         function openM() { document.getElementById('mNome').innerText = tAtivo; document.getElementById('modal').style.display = 'flex'; renderE(); }
         function closeM() { document.getElementById('modal').style.display = 'none'; }
         function renderE() { const d = document.getElementById('lEdicao'); d.innerHTML = ''; est.treinos[tAtivo].forEach(ex => { d.innerHTML += `<div class="item-edicao"><span>${ex.nome}</span><button onclick="remEx('${ex.id}')" style="background:var(--d); border:none; color:white; padding:5px 10px; border-radius:5px;">🗑️</button></div>`; }); }
         function addEx() { const n = document.getElementById('nN').value, p = document.getElementById('nP').value, s = document.getElementById('nS').value; if(!n || !p || !s) return; est.treinos[tAtivo].push({ id: 'ex_'+Date.now(), nome: n, kg: Number(p), sets: Number(s), img: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400" }); save(); renderE(); render(); }
         function remEx(id) { est.treinos[tAtivo] = est.treinos[tAtivo].filter(e => e.id !== id); save(); renderE(); render(); }
         
-        window.onload = () => { upDash(); };
+        window.onload = () => { upDash(); initChart(); };
     </script>
 </body>
 </html>

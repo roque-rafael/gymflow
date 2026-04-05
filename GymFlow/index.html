@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <title>GymFlow</title>
     <link rel="manifest" href="./manifest.json">
     <link rel="icon" href="icon-192.png">
@@ -17,115 +17,102 @@
             background: var(--bg); 
             color: var(--t); 
             margin: 0; 
-            padding: 10px; 
+            padding: 0; /* Removi o padding do body para ganhar espaço */
             display: flex; 
             justify-content: center; 
+            font-size: 18px; /* Fonte base maior */
         }
 
         .container { 
-            width: 100%; 
-            /* No PC ele fica estreito, no celular ele ocupa a tela toda */
-            max-width: 500px; 
-            padding-bottom: 40px; 
+            width: 100vw; /* Ocupa 100% da largura da janela */
+            max-width: 100%; /* Remove o limite de 500px */
+            padding: 15px;
+            padding-bottom: 60px; 
         }
 
-        header h1 { text-align: center; color: var(--p); font-size: 2rem; margin: 15px 0 25px 0; }
+        header h1 { text-align: center; color: var(--p); font-size: 2.2rem; margin: 20px 0; }
 
-        /* Ajustando os cards de estatísticas para ficarem maiores no toque */
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
         .stat-card { 
             background: var(--c); 
             padding: 20px 10px; 
-            border-radius: 15px; 
+            border-radius: 20px; 
             text-align: center; 
-            border-bottom: 3px solid var(--p);
-            min-height: 120px;
+            border-bottom: 4px solid var(--p);
+            min-height: 130px;
             display: flex;
             flex-direction: column;
             justify-content: center;
         }
-        .stat-card small { font-size: 0.9rem; font-weight: bold; opacity: 0.8; }
-        .stat-card h2 { font-size: 2rem; margin: 5px 0; }
+        .stat-card h2 { font-size: 2.2rem; margin: 5px 0; }
 
-        .bar-bg { width: 100%; background: #334155; height: 8px; border-radius: 10px; margin-top: 8px; overflow: hidden; }
+        .bar-bg { width: 100%; background: #334155; height: 10px; border-radius: 10px; margin-top: 10px; overflow: hidden; }
         .bar-fill { background: var(--s); height: 100%; transition: width 0.5s; }
 
-        /* Botões A B C maiores para o dedo */
-        .sel { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .sel { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 25px; }
         .btn-t { 
             background: var(--c); 
             color: white; 
-            border: 2px solid #334155; 
-            padding: 18px 5px; 
-            border-radius: 12px; 
+            border: 2px solid #475569; 
+            padding: 22px 5px; 
+            border-radius: 18px; 
             cursor: pointer; 
-            font-weight: bold; 
-            font-size: 1.2rem;
+            font-weight: 900; 
+            font-size: 1.4rem; /* Botões A B C bem grandes */
         }
         .btn-t.active { border-color: var(--p); background: #2563eb33; color: var(--p); }
 
         .act { display: none; justify-content: center; margin-bottom: 20px; }
-        .btn-e { background: #334155; color: white; padding: 12px 25px; border-radius: 10px; border: 1px dashed var(--p); font-size: 1rem; font-weight: bold; }
+        .btn-e { background: #334155; color: white; padding: 15px 30px; border-radius: 12px; border: 1px dashed var(--p); font-size: 1rem; font-weight: bold; width: 100%; }
 
-        /* Carrossel ocupando a largura real do celular */
-        .carousel-container { position: relative; width: 100%; overflow: hidden; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .track { display: flex; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); gap: 10px; }
+        .carousel-container { position: relative; width: 100%; overflow: hidden; border-radius: 25px; }
+        .track { display: flex; transition: transform 0.4s ease; gap: 0px; } /* Gap zero para não vazar o próximo card */
         
         .card { 
             min-width: 100%; 
             background: var(--c); 
-            border-radius: 20px; 
+            border-radius: 25px; 
             overflow: hidden; 
-            border: 2px solid transparent; 
+            border: 3px solid transparent; 
         }
         .card.done { border-color: var(--s); }
-        .card img { width: 100%; height: 180px; object-fit: cover; opacity: 0.5; }
+        .card img { width: 100%; height: 220px; object-fit: cover; opacity: 0.6; }
         .card.done img { opacity: 1; }
-        .card h3 { font-size: 1.6rem; margin: 15px 0 5px 0; }
+        .card h3 { font-size: 1.8rem; margin: 20px 0 5px 0; }
         
-        .sets { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; padding: 20px; }
+        .sets { display: flex; flex-wrap: wrap; justify-content: center; gap: 18px; padding: 25px; }
         .bub { 
-            width: 50px; 
-            height: 50px; 
+            width: 60px; 
+            height: 60px; 
             border-radius: 50%; 
-            border: 2px solid #475569; 
+            border: 3px solid #475569; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
             cursor: pointer; 
-            font-weight: bold; 
-            font-size: 1.3rem; 
+            font-weight: 900; 
+            font-size: 1.5rem; 
         }
-        .bub.checked { background: var(--s); color: #000; border-color: var(--s); box-shadow: 0 0 15px rgba(204, 255, 0, 0.3); }
+        .bub.checked { background: var(--s); color: #000; border-color: var(--s); box-shadow: 0 0 20px rgba(204, 255, 0, 0.4); }
 
-        /* Peso e Gráfico */
-        .peso-container { background: var(--c); padding: 25px; border-radius: 20px; margin-top: 25px; }
+        .peso-container { background: var(--c); padding: 25px; border-radius: 25px; margin-top: 30px; }
         .peso-input-group { display: flex; gap: 10px; margin-top: 15px; }
-        .peso-input-group input { background: #0f172a; color: white; border: none; padding: 5px; border-radius: 12px; flex: 1; font-size: 1.2rem; }
-        .peso-input-group button { background: var(--p); color: white; border: none; padding: 0 25px; border-radius: 12px; font-weight: bold; font-size: 1rem; }
+        .peso-input-group input { background: #0f172a; color: white; border: none; padding: 18px; border-radius: 15px; flex: 1; font-size: 1.3rem; }
+        .peso-input-group button { background: var(--p); color: white; border: none; padding: 0 30px; border-radius: 15px; font-weight: bold; font-size: 1.1rem; }
 
-        .btn-reset { background: transparent; color: var(--d); border: 1px solid var(--d); width: 100%; padding: 15px; border-radius: 12px; margin-top: 40px; font-size: 0.9rem; font-weight: bold; cursor: pointer; }
+        .btn-reset { background: transparent; color: var(--d); border: 1px solid var(--d); width: 100%; padding: 18px; border-radius: 15px; margin-top: 40px; font-size: 1rem; font-weight: bold; }
         
-        /* Modais */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 3000; padding: 10px; align-items: center; justify-content: center; }
-        .m-content { background: var(--c); width: 100%; max-width: 450px; padding: 25px; border-radius: 25px; border: 1px solid var(--p); max-height: 90vh; overflow-y: auto; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 3000; padding: 15px; align-items: center; justify-content: center; }
+        .m-content { background: var(--c); width: 100%; padding: 30px; border-radius: 30px; border: 1px solid var(--p); max-height: 90vh; overflow-y: auto; }
     </style>
 </head>
 <body>
     <div class="container">
-        <header><h1>GymFlow <small style="font-size:12px; opacity:0.5">V11.1</small></h1></header>
+        <header><h1>GymFlow <small style="font-size:12px; opacity:0.5">V11.2</small></h1></header>
         
         <div class="stats-grid">
-            <div class="stat-card">
-                <small>TREINOS</small>
-                <h2 id="cont">0</h2>
-                <div class="bar-bg"><div class="bar-fill" id="bar"></div></div>
-            </div>
-            <div class="stat-card">
-                <small>PRAZO</small>
-                <input type="date" id="dateInp" onchange="upDate()" style="background:#0f172a; color:white; border:none; padding:8px; border-radius:8px; width:100%; margin-top:5px; font-size: 1rem; text-align: center;">
-                <div id="txtC" style="color:var(--g); font-size:0.8rem; margin-top:8px; font-weight:bold;"></div>
-            </div>
+            <div class="stat-card"><small>TREINOS</small><h2 id="cont">0</h2><div class="bar-bg"><div class="bar-fill" id="bar"></div></div></div>
+            <div class="stat-card"><small>PRAZO</small><input type="date" id="dateInp" onchange="upDate()" style="background:#0f172a; color:white; border:none; padding:10px; border-radius:10px; width:100%; margin-top:5px; font-size: 1.1rem; text-align: center;"><div id="txtC" style="color:var(--g); font-size:0.9rem; margin-top:8px; font-weight:bold;"></div></div>
         </div>
 
         <div class="sel">
@@ -138,56 +125,55 @@
         
         <div id="cView" style="display:none">
             <div class="carousel-container"><div class="track" id="track"></div></div>
-            <div style="display:flex; justify-content:center; gap:50px; margin-top:20px;">
-                <button onclick="move(-1)" style="background:var(--c); color:white; width:60px; height:60px; border-radius:50%; border:1px solid #334155; font-size:1.5rem;">❮</button>
-                <button onclick="move(1)" style="background:var(--c); color:white; width:60px; height:60px; border-radius:50%; border:1px solid #334155; font-size:1.5rem;">❯</button>
+            <div style="display:flex; justify-content:center; gap:50px; margin-top:25px;">
+                <button onclick="move(-1)" style="background:var(--c); color:white; width:70px; height:70px; border-radius:50%; border:1px solid #475569; font-size:2rem;">❮</button>
+                <button onclick="move(1)" style="background:var(--c); color:white; width:70px; height:70px; border-radius:50%; border:1px solid #475569; font-size:2rem;">❯</button>
             </div>
         </div>
 
         <div class="peso-container">
-            <h3 style="margin:0; font-size:1.3rem;">Evolução de Peso</h3>
+            <h3>Peso Atual</h3>
             <div class="peso-input-group"><input type="number" id="pesoInp" placeholder="kg"><button onclick="addP()">OK</button></div>
-            <div style="height: 200px; margin-top: 20px;"><canvas id="chart"></canvas></div>
+            <div style="height: 220px; margin-top: 25px;"><canvas id="chart"></canvas></div>
         </div>
 
-        <button onclick="reset()" class="btn-reset">⚠️ RESETAR TUDO (CARREGAR NOVOS PADRÕES)</button>
+        <button onclick="reset()" class="btn-reset">⚠️ RESETAR APP</button>
     </div>
 
     <script>
         const def = {
             'A': [
-                { id: 'a1', nome: "Puxada Alta", kg: 25, sets: 3, img: "https://images.unsplash.com/photo-1603287611837-3204c3c63588?w=400" },
-                { id: 'a2', nome: "Remada Baixa", kg: 25, sets: 3, img: "https://images.unsplash.com/photo-1594737625785-a6bad4b2ee8f?w=400" },
-                { id: 'a3', nome: "Remada Individual", kg: 7, sets: 3, img: "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=400" },
-                { id: 'a4', nome: "Rosca Barra Reta", kg: 12, sets: 3, img: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400" },
-                { id: 'a5', nome: "Desenv. Lateral", kg: 7, sets: 1, img: "https://images.unsplash.com/photo-1532384748853-8f54a8f476e2?w=400" },
-                { id: 'a6', nome: "Biceps Polia", kg: 15, sets: 3, img: "https://images.unsplash.com/photo-1591741535018-d042766c62eb?w=400" },
-                { id: 'a7', nome: "Pulldown", kg: 15, sets: 3, img: "https://images.unsplash.com/photo-1626305018191-4d371477755b?w=400" }
+                { id: 'a1', nome: "Puxada Alta", kg: 25, sets: 3, img: "https://images.unsplash.com/photo-1603287611837-3204c3c63588?w=800" },
+                { id: 'a2', nome: "Remada Baixa", kg: 25, sets: 3, img: "https://images.unsplash.com/photo-1594737625785-a6bad4b2ee8f?w=800" },
+                { id: 'a3', nome: "Remada Individual", kg: 7, sets: 3, img: "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=800" },
+                { id: 'a4', nome: "Rosca Barra Reta", kg: 12, sets: 3, img: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=800" },
+                { id: 'a5', nome: "Desenv. Lateral", kg: 7, sets: 1, img: "https://images.unsplash.com/photo-1532384748853-8f54a8f476e2?w=800" },
+                { id: 'a6', nome: "Biceps Polia", kg: 15, sets: 3, img: "https://images.unsplash.com/photo-1591741535018-d042766c62eb?w=800" },
+                { id: 'a7', nome: "Pulldown", kg: 15, sets: 3, img: "https://images.unsplash.com/photo-1626305018191-4d371477755b?w=800" }
             ],
             'B': [
-                { id: 'b1', nome: "Crucifixo Máquina", kg: 25, sets: 3, img: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400" },
-                { id: 'b2', nome: "Desenv. Máquina", kg: 10, sets: 3, img: "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=400" },
-                { id: 'b3', nome: "Rosca Alternada", kg: 25, sets: 3, img: "https://images.unsplash.com/photo-1603287611837-3204c3c63588?w=400" },
-                { id: 'b4', nome: "Triceps Polia", kg: 15, sets: 3, img: "https://images.unsplash.com/photo-1591741535018-d042766c62eb?w=400" },
-                { id: 'b5', nome: "Triceps Francês", kg: 8, sets: 3, img: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400" },
-                { id: 'b6', nome: "Elevação Frontal", kg: 10, sets: 3, img: "https://images.unsplash.com/photo-1532384748853-8f54a8f476e2?w=400" }
+                { id: 'b1', nome: "Crucifixo Máquina", kg: 25, sets: 3, img: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800" },
+                { id: 'b2', nome: "Desenv. Máquina", kg: 10, sets: 3, img: "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=800" },
+                { id: 'b3', nome: "Rosca Alternada", kg: 25, sets: 3, img: "https://images.unsplash.com/photo-1603287611837-3204c3c63588?w=800" },
+                { id: 'b4', nome: "Triceps Polia", kg: 15, sets: 3, img: "https://images.unsplash.com/photo-1591741535018-d042766c62eb?w=800" },
+                { id: 'b5', nome: "Triceps Francês", kg: 8, sets: 3, img: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=800" },
+                { id: 'b6', nome: "Elevação Frontal", kg: 10, sets: 3, img: "https://images.unsplash.com/photo-1532384748853-8f54a8f476e2?w=800" }
             ],
             'C': [
-                { id: 'c1', nome: "Cadeira Extensora", kg: 25, sets: 3, img: "https://images.unsplash.com/photo-1590239068512-0f399f784ead?w=400" },
-                { id: 'c2', nome: "Cadeira Flexora", kg: 25, sets: 3, img: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400" },
-                { id: 'c3', nome: "Leg Press", kg: 100, sets: 3, img: "https://images.unsplash.com/photo-1574673130329-274efb4408bc?w=400" },
-                { id: 'c4', nome: "Agachamento Hack", kg: 10, sets: 3, img: "https://images.unsplash.com/photo-1591940746444-1303d27129ca?w=400" },
-                { id: 'c5', nome: "Mesa Flexora", kg: 25, sets: 3, img: "https://images.unsplash.com/photo-1590239068512-0f399f784ead?w=400" },
-                { id: 'c6', nome: "Cadeira Abdutora", kg: 40, sets: 3, img: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400" }
+                { id: 'c1', nome: "Cadeira Extensora", kg: 25, sets: 3, img: "https://images.unsplash.com/photo-1590239068512-0f399f784ead?w=800" },
+                { id: 'c2', nome: "Cadeira Flexora", kg: 25, sets: 3, img: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800" },
+                { id: 'c3', nome: "Leg Press", kg: 100, sets: 3, img: "https://images.unsplash.com/photo-1574673130329-274efb4408bc?w=800" },
+                { id: 'c4', nome: "Agachamento Hack", kg: 10, sets: 3, img: "https://images.unsplash.com/photo-1591940746444-1303d27129ca?w=800" },
+                { id: 'c5', nome: "Mesa Flexora", kg: 25, sets: 3, img: "https://images.unsplash.com/photo-1590239068512-0f399f784ead?w=800" },
+                { id: 'c6', nome: "Cadeira Abdutora", kg: 40, sets: 3, img: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800" }
             ]
         };
 
-        // Lógica de salvamento e renderização (V11.1)
-        let est = JSON.parse(localStorage.getItem('GF_V11_1')) || { treinos: JSON.parse(JSON.stringify(def)), sets: {}, dias: [], peso: [], datasP: [], inicio: new Date().toISOString().split('T')[0], lim: "" };
+        let est = JSON.parse(localStorage.getItem('GF_V11_2')) || { treinos: JSON.parse(JSON.stringify(def)), sets: {}, dias: [], peso: [], datasP: [], inicio: new Date().toISOString().split('T')[0], lim: "" };
         let tAtivo = null; let curIdx = 0; let chart;
 
-        function save() { localStorage.setItem('GF_V11_1', JSON.stringify(est)); }
-        function reset() { if(confirm("Resetar tudo?")){ localStorage.clear(); location.reload(); } }
+        function save() { localStorage.setItem('GF_V11_2', JSON.stringify(est)); }
+        function reset() { if(confirm("Limpar tudo?")){ localStorage.clear(); location.reload(); } }
         
         function selT(l) { 
             tAtivo = l; curIdx = 0; 
@@ -203,13 +189,13 @@
             tr.innerHTML = ''; (est.treinos[tAtivo] || []).forEach(ex => { 
                 if (!est.sets[ex.id]) est.sets[ex.id] = new Array(ex.sets).fill(false); 
                 const s = est.sets[ex.id]; const d = s.every(v => v === true); 
-                tr.innerHTML += `<div class="card ${d ? 'done' : ''}" style="min-width: ${cw}px"><img src="${ex.img}"><div style="text-align:center; padding:15px;"><h3>${ex.nome}</h3><div style="color:var(--p); font-weight:bold; margin-bottom:10px;">${ex.kg}kg | ${ex.sets} séries</div><div class="sets">${s.map((v, i) => `<div class="bub ${v ? 'checked' : ''}" onclick="altS('${ex.id}', ${i})">${i+1}</div>`).join('')}</div></div></div>`; 
+                tr.innerHTML += `<div class="card ${d ? 'done' : ''}" style="min-width: ${cw}px"><img src="${ex.img}"><div style="text-align:center; padding:20px;"><h3>${ex.nome}</h3><div style="color:var(--p); font-weight:bold; margin-bottom:15px; font-size:1.3rem;">${ex.kg}kg | ${ex.sets} séries</div><div class="sets">${s.map((v, i) => `<div class="bub ${v ? 'checked' : ''}" onclick="altS('${ex.id}', ${i})">${i+1}</div>`).join('')}</div></div></div>`; 
             }); 
-            if (keep) { tr.style.transform = `translateX(${-curIdx * (cw + 10)}px)`; } else { tr.style.transform = `translateX(0px)`; }
+            if (keep) { tr.style.transform = `translateX(${-curIdx * cw}px)`; } else { tr.style.transform = `translateX(0px)`; }
         }
 
         function altS(id, i) { est.sets[id][i] = !est.sets[id][i]; save(); const done = est.sets[id].every(v => v === true); render(true); if(done && curIdx < est.treinos[tAtivo].length - 1) setTimeout(() => move(1), 300); checkD(); }
-        function move(d) { const cw = document.querySelector('.carousel-container').offsetWidth + 10; curIdx = Math.max(0, Math.min(curIdx + d, est.treinos[tAtivo].length - 1)); document.getElementById('track').style.transform = `translateX(${-curIdx * cw}px)`; }
+        function move(d) { const cw = document.querySelector('.carousel-container').offsetWidth; curIdx = Math.max(0, Math.min(curIdx + d, est.treinos[tAtivo].length - 1)); document.getElementById('track').style.transform = `translateX(${-curIdx * cw}px)`; }
         
         function checkD() { 
             const h = new Date().toLocaleDateString(); let ok = false; 
@@ -230,7 +216,7 @@
                 const fal = Math.ceil((fim - hj) / 86400000);
                 document.getElementById('txtC').innerText = fal >= 0 ? `Faltam ${fal} dias` : "Meta!";
                 const pct = Math.round((est.dias.length / tot) * 100) || 0;
-                document.getElementById('cont').innerHTML = `${est.dias.length} <span style="font-size:1.2rem; opacity:0.6;">| ${pct}%</span>`;
+                document.getElementById('cont').innerHTML = `${est.dias.length} <span style="font-size:1.3rem; opacity:0.6;">| ${pct}%</span>`;
                 document.getElementById('bar').style.width = `${Math.min(pct, 100)}%`;
             } else { document.getElementById('cont').innerText = est.dias.length; }
         }
@@ -242,8 +228,36 @@
             chart = new Chart(ctx, { type: 'line', data: { labels: est.datasP, datasets: [{ label: 'kg', data: est.peso, borderColor: '#3b82f6', tension: 0.4, fill: true, backgroundColor: 'rgba(59,130,246,0.1)' }] }, options: { plugins: { legend: { display: false } }, responsive: true, maintainAspectRatio: false } });
         }
 
-        function openM() { document.getElementById('acts').style.display = 'none'; document.getElementById('modal').style.display = 'flex'; renderE(); }
-        function closeM() { document.getElementById('modal').style.display = 'none'; document.getElementById('acts').style.display = 'flex'; }
+        function openM() { document.getElementById('modal').style.display = 'flex'; renderE(); }
+        function closeM() { document.getElementById('modal').style.display = 'none'; }
+        
+        function renderE() { 
+            const d = document.getElementById('lEdicao'); d.innerHTML = ''; 
+            est.treinos[tAtivo].forEach((ex) => { 
+                d.innerHTML += `<div class="item-edicao" style="background:#0f172a; padding:15px; border-radius:15px; margin-bottom:10px;"><div style="display:flex; justify-content:space-between; align-items:center;"><strong>${ex.nome}</strong><button onclick="remEx('${ex.id}')" style="background:none; border:none; color:var(--d); font-weight:bold;">Apagar</button></div><div style="display:flex; gap:15px; margin-top:10px;"><div><small>Kg</small><br><input type="number" value="${ex.kg}" onchange="editV('${ex.id}','kg',this.value)" style="width:70px; background:#1e293b; color:white; border:none; padding:8px; border-radius:8px;"></div><div><small>Séries</small><br><input type="number" value="${ex.sets}" onchange="editV('${ex.id}','sets',this.value)" style="width:70px; background:#1e293b; color:white; border:none; padding:8px; border-radius:8px;"></div></div></div>`; 
+            }); 
+        }
+
+        function editV(id, c, v) {
+            const ex = est.treinos[tAtivo].find(e => e.id === id);
+            if(c==='sets') {
+                const n = Number(v);
+                if(n > ex.sets) est.sets[id] = est.sets[id].concat(new Array(n-ex.sets).fill(false));
+                else est.sets[id] = est.sets[id].slice(0, n);
+                ex.sets = n;
+            } else ex.kg = Number(v);
+            save(); render(true);
+        }
+
+        function addEx() { 
+            const n = document.getElementById('nN').value, p = document.getElementById('nP').value, s = document.getElementById('nS').value; 
+            if(!n || !p || !s) return; 
+            est.treinos[tAtivo].push({ id: 'ex_'+Date.now(), nome: n, kg: Number(p), sets: Number(s), img: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800" }); 
+            save(); renderE(); render(true); 
+            document.getElementById('nN').value=''; document.getElementById('nP').value=''; document.getElementById('nS').value='';
+        }
+
+        function remEx(id) { if(confirm("Remover?")) { est.treinos[tAtivo] = est.treinos[tAtivo].filter(e => e.id !== id); save(); renderE(); render(true); } }
         
         window.onload = () => { const dF = localStorage.getItem('GF_LIM_FIXO'); if(dF) est.lim = dF; upDash(); initChart(); };
     </script>

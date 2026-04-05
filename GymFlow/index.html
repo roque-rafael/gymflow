@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GymFlow V5.5 - Pro Engagement</title>
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #3b82f6; --success: #ccff00; --danger: #ef4444;
+            --gold: #fbbf24; --bg: #0f172a; --card-bg: #1e293b; 
+            --text: #f8fafc; --text-dark: #000;
+        }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); padding: 20px; margin: 0; }
+        .container { max-width: 900px; margin: auto; padding-bottom: 50px; }
+        
+        /* Dashboard */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: var(--card-bg); padding: 15px; border-radius: 15px; text-align: center; border-bottom: 4px solid var(--primary); min-height: 100px; display: flex; flex-direction: column; justify-content: center; position: relative;}
+        .stat-card.goal-met { border-color: var(--success); }
+        
+        .progress-bar-bg { width: 80%; background: #334155; height: 6px; border-radius: 10px; margin: 10px auto 0 auto; overflow: hidden; }
+        .progress-bar-fill { background: var(--success); height: 100%; transition: width 0.5s ease-in-out; }
+
+        /* Toasts Animados */
+        .toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column-reverse; gap: 10px; z-index: 2000; width: 90%; max-width: 400px; pointer-events: none; }
+        .toast { background: #1e293b; border: 2px solid var(--gold); padding: 15px; border-radius: 12px; color: white; display: flex; align-items: center; gap: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.8); animation: slideUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; pointer-events: auto; }
+        @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* Modal Noturno Especial */
+        .modal-night { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.95); z-index: 3000; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
+        .night-content { background: var(--card-bg); padding: 30px; border-radius: 20px; border: 2px solid var(--primary); text-align: center; max-width: 400px; width: 100%; box-shadow: 0 0 30px rgba(59, 130, 246, 0.3); }
+        .night-btns { display: flex; gap: 10px; margin-top: 25px; }
+        .btn-night { flex: 1; padding: 15px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .btn-yes { background: var(--success); color: var(--text-dark); }
+        .btn-no { background: #334155; color: white; }
+
+        /* Estilos base (omitidos alguns pra encurtar, mas mantidos os mesmos do V5.4) */
+        .treino-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .btn-treino { background: var(--card-bg); color: white; border: 2px solid #334155; padding: 15px 5px; border-radius: 12px; cursor: pointer; font-weight: bold; }
+        .btn-treino.active { border-color: var(--primary); background: #2563eb33; color: var(--primary); }
+        .carousel-view { display: none; }
+        .carousel-wrapper { position: relative; overflow: hidden; margin-bottom: 20px; }
+        .carousel-track { display: flex; transition: transform 0.4s ease-in-out; gap: 15px; padding: 10px 0; }
+        .card { min-width: 280px; background: var(--card-bg); border-radius: 20px; overflow: hidden; border: 3px solid transparent; transition: 0.3s; }
+        .card.done { border-color: var(--success); }
+        .card img { width: 100%; height: 120px; object-fit: cover; opacity: 0.4; }
+        .card.done img { opacity: 1; filter: grayscale(0); }
+        .mini-input { display: flex; align-items: center; background: #0f172a; border-radius: 8px; padding: 5px 10px; }
+        .mini-input input { width: 35px; text-align: center; background: transparent; border: none; color: var(--primary); font-weight: bold; }
+        .set-bubble { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #475569; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.8rem; font-weight: bold; margin: 4px; }
+        .set-bubble.checked { background: var(--success); color: var(--text-dark); border-color: var(--success); }
+        .chart-container { background: var(--card-bg); padding: 20px; border-radius: 15px; margin-top: 30px; }
+        button { cursor: pointer; border: none; font-weight: bold; border-radius: 8px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header style="text-align: center; margin-bottom: 20px;">
+        <h1 style="color: var(--primary);">Gym<span style="color:white;">Flow</span> <small style="font-size: 0.5em; opacity: 0.4;">V5.5</small></h1>
+    </header>
+
+    <div id="toastContainer" class="toast-container"></div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <small>Data Limite</small>
+            <input type="date" id="dataLimite" onchange="atualizarDashboard()" style="background:#334155; color:white; border:none; padding:5px; border-radius:5px; margin-top:5px; width: 85%;">
+            <div id="textoContagem" style="color:var(--gold); font-size:0.8rem; margin-top:5px;"></div>
+        </div>
+        <div class="stat-card" id="statusTreino">
+            <small>Meta do Desafio</small>
+            <h2 id="contadorDias" style="margin:0; color:var(--primary); font-size: 1.8rem;">0</h2>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" id="barraProgressoUi"></div></div>
+        </div>
+    </div>
+
+    <div class="treino-selector">
+        <button class="btn-treino" onclick="selecionarTreino('A')">TREINO A</button>
+        <button class="btn-treino" onclick="selecionarTreino('B')">TREINO B</button>
+        <button class="btn-treino" onclick="selecionarTreino('C')">TREINO C</button>
+    </div>
+
+    <div class="carousel-view" id="carouselView">
+        <div class="carousel-wrapper"><div class="carousel-track" id="track"></div></div>
+        <div style="display:flex; justify-content:center; gap:20px; margin-bottom:20px;">
+            <button onclick="move(-1)" style="background:var(--card-bg); color:white; width:45px; height:45px; border-radius:50%;">❮</button>
+            <button onclick="move(1)" style="background:var(--card-bg); color:white; width:45px; height:45px; border-radius:50%;">❯</button>
+        </div>
+    </div>
+
+    <div class="chart-container">
+        <h3>Evolução de Peso</h3>
+        <input type="number" id="pesoInput" placeholder="Peso (kg)" style="background:#334155; color:white; border:none; padding:10px; border-radius:8px;">
+        <button onclick="registrarPeso()" style="background: var(--primary); color: white; padding: 10px 20px;">Salvar</button>
+        <canvas id="evolucaoChart" height="150"></canvas>
+    </div>
+</div>
+
+<div class="modal-night" id="modalNoturno">
+    <div class="night-content">
+        <div style="font-size: 3rem; margin-bottom: 10px;">🌙</div>
+        <h2 style="margin: 0; color: var(--primary);">Quase meia-noite!</h2>
+        <p style="opacity: 0.8; line-height: 1.5; margin-top: 15px;">Notei que você não registrou treinos hoje... mas fez algum exercício por fora, como uma caminhada ou corrida?</p>
+        <div class="night-btns">
+            <button class="btn-night btn-yes" onclick="responderNoturno(true)">Sim, eu fiz!</button>
+            <button class="btn-night btn-no" onclick="responderNoturno(false)">Hoje não...</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const defaultTreinos = {
+        'A': [ { id: 'a1', nome: "Supino Reto", reps: 10, kg: 40, sets: 3, img: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400" } ],
+        'B': [ { id: 'b1', nome: "Puxada Alta", reps: 12, kg: 50, sets: 4, img: "https://images.unsplash.com/photo-1603287611837-3204c3c63588?w=400" } ],
+        'C': [ { id: 'c1', nome: "Leg Press", reps: 15, kg: 120, sets: 4, img: "https://images.unsplash.com/photo-1574673130329-274efb4408bc?w=400" } ]
+    };
+
+    let estado = JSON.parse(localStorage.getItem('gymFlowV5_5')) || {
+        treinos: defaultTreinos,
+        progressoSets: {}, 
+        historicoPeso: [],
+        datasPeso: [],
+        diasTreinados: [], 
+        conquistasDesbloqueadas: [],
+        dataInicio: new Date().toISOString().split('T')[0],
+        checkNoturnoRespondido: "", // Salva a data da última vez que respondeu o modal noturno
+        dataAtual: new Date().toLocaleDateString()
+    };
+
+    let treinoAtivo = null;
+    let currentIndex = 0;
+
+    window.onload = () => {
+        const hoje = new Date().toLocaleDateString();
+        if(estado.dataAtual !== hoje){
+            estado.progressoSets = {}; 
+            estado.dataAtual = hoje;
+            salvar();
+        }
+        document.getElementById('dataLimite').value = localStorage.getItem('gym_dataLim') || "";
+        atualizarDashboard();
+        inicializarGrafico();
+        verificarHorarioNoturno(); // <--- CHAMA A CHECAGEM AO CARREGAR
+    };
+
+    // --- LÓGICA NOTURNA (QA REQUEST) ---
+    function verificarHorarioNoturno() {
+        const agora = new Date();
+        const hora = agora.getHours();
+        const hoje = agora.toLocaleDateString();
+
+        // Se for 23h ou mais tarde
+        // E eu não treinei hoje ainda
+        // E eu ainda não respondi essa pergunta hoje
+        const treinouHoje = estado.diasTreinados.includes(hoje);
+        
+        if (hora >= 23 && !treinouHoje && estado.checkNoturnoRespondido !== hoje) {
+            document.getElementById('modalNoturno').style.display = 'flex';
+        }
+    }
+
+    function responderNoturno(fezExercicio) {
+        const hoje = new Date().toLocaleDateString();
+        estado.checkNoturnoRespondido = hoje; // Marca como respondido para não abrir de novo hoje
+
+        if (fezExercicio) {
+            estado.diasTreinados.push(hoje);
+            dispararToast("Boa! Atividade manual registrada. Não desista! 🏃‍♂️⚡");
+        } else {
+            dispararToast("Sem problemas! Amanhã é um novo dia para focar. 👊");
+        }
+
+        document.getElementById('modalNoturno').style.display = 'none';
+        atualizarDashboard();
+        salvar();
+    }
+
+    // --- SISTEMA DE NOTIFICAÇÕES ---
+    function dispararToast(mensagem) {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = `<div style="font-size:1.5rem">📢</div><div>${mensagem}</div>`;
+        container.appendChild(toast);
+        setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 500); }, 4000);
+    }
+
+    function checarConquistas(pctAtual, diasAtuais) {
+        const marcos = [10, 25, 30, 45, 60, 70];
+        marcos.forEach(m => {
+            if (pctAtual >= m && !estado.conquistasDesbloqueadas.includes(`pct_${m}`)) {
+                estado.conquistasDesbloqueadas.push(`pct_${m}`);
+                dispararToast(`🏆 Meta batida: ${m}% do desafio concluído!`);
+            }
+        });
+        if (diasAtuais > 0 && diasAtuais % 7 === 0 && !estado.conquistasDesbloqueadas.includes(`dias_${diasAtuais}`)) {
+            estado.conquistasDesbloqueadas.push(`dias_${diasAtuais}`);
+            dispararToast(`🏅 Incrível! ${diasAtuais} dias de foco real acumulados!`);
+        }
+        salvar();
+    }
+
+    // --- DASHBOARD E RENDERS ---
+    function selecionarTreino(letra) {
+        treinoAtivo = letra;
+        document.querySelectorAll('.btn-treino').forEach(b => b.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+        document.getElementById('carouselView').style.display = 'block';
+        renderizarCards();
+    }
+
+    function renderizarCards() {
+        const track = document.getElementById('track');
+        track.innerHTML = '';
+        estado.treinos[treinoAtivo].forEach(ex => {
+            if (!estado.progressoSets[ex.id]) estado.progressoSets[ex.id] = new Array(ex.sets).fill(false);
+            const sets = estado.progressoSets[ex.id];
+            const isAllDone = sets.every(s => s === true);
+            const card = document.createElement('div');
+            card.className = `card ${isAllDone ? 'done' : ''}`;
+            card.innerHTML = `
+                <img src="${ex.img}">
+                <div class="card-content">
+                    <h3>${ex.nome}</h3>
+                    <div class="card-inputs-row">
+                        <div class="mini-input"><input type="number" value="${ex.reps || 10}" onchange="atualizarDado('${ex.id}', 'reps', this.value)"><span>reps</span></div>
+                        <div class="mini-input"><input type="number" value="${ex.kg}" onchange="atualizarDado('${ex.id}', 'kg', this.value)"><span>kg</span></div>
+                    </div>
+                    <div class="sets-list">
+                        ${sets.map((done, i) => `<div class="set-bubble ${done ? 'checked' : ''}" onclick="alternarSet('${ex.id}', ${i})">${i+1}</div>`).join('')}
+                    </div>
+                </div>
+            `;
+            track.appendChild(card);
+        });
+        reavaliarDiasDeFoco();
+    }
+
+    function atualizarDado(id, campo, val) {
+        const ex = estado.treinos[treinoAtivo].find(e => e.id === id);
+        if(ex) { ex[campo] = Number(val); salvar(); }
+    }
+
+    function alternarSet(exId, setIdx) {
+        estado.progressoSets[exId][setIdx] = !estado.progressoSets[exId][setIdx];
+        renderizarCards(); salvar();
+    }
+
+    function reavaliarDiasDeFoco() {
+        const hoje = new Date().toLocaleDateString();
+        let completo = false;
+        for (let t in estado.treinos) {
+            if (estado.treinos[t].length > 0 && estado.treinos[t].every(ex => estado.progressoSets[ex.id]?.every(s => s === true))) completo = true;
+        }
+        const idx = estado.diasTreinados.indexOf(hoje);
+        if (completo && idx === -1) estado.diasTreinados.push(hoje);
+        else if (!completo && idx > -1 && estado.checkNoturnoRespondido !== hoje) {
+            // Só remove o dia se não tiver sido validado manualmente pelo modal noturno
+            estado.diasTreinados.splice(idx, 1);
+        }
+        atualizarDashboard(); salvar();
+    }
+
+    function atualizarDashboard() {
+        const lim = document.getElementById('dataLimite').value;
+        const inicio = new Date(estado.dataInicio + 'T00:00:00');
+        const hojeData = new Date(); hojeData.setHours(0,0,0,0);
+        
+        let diasTotais = Math.max(1, Math.ceil((hojeData - inicio) / 86400000) + 1);
+        if (lim) {
+            const limD = new Date(lim + 'T00:00:00');
+            diasTotais = Math.max(1, Math.ceil((limD - inicio) / 86400000) + 1);
+            const diff = Math.ceil((limD - hojeData) / 86400000);
+            document.getElementById('textoContagem').innerText = diff > 0 ? `⏳ Faltam ${diff} dias` : "🎯 Dia da Meta!";
+        }
+
+        const pct = Math.round((estado.diasTreinados.length / diasTotais) * 100) || 0;
+        document.getElementById('contadorDias').innerHTML = `${estado.diasTreinados.length} <span style="font-size:0.9rem; opacity:0.7">| ${pct}%</span>`;
+        document.getElementById('barraProgressoUi').style.width = `${Math.min(pct, 100)}%`;
+        checarConquistas(pct, estado.diasTreinados.length);
+    }
+
+    function move(dir) { currentIndex = Math.max(0, Math.min(currentIndex + dir, estado.treinos[treinoAtivo].length - 1)); document.getElementById('track').style.transform = `translateX(${-currentIndex * 295}px)`; }
+    function registrarPeso() { const p = document.getElementById('pesoInput').value; if(!p) return; estado.datasPeso.push(new Date().toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'})); estado.historicoPeso.push(p); chart.update(); salvar(); document.getElementById('pesoInput').value = ''; }
+    let chart;
+    function inicializarGrafico() { const ctx = document.getElementById('evolucaoChart').getContext('2d'); chart = new Chart(ctx, { type:'line', data:{ labels:estado.datasPeso, datasets:[{ label:'Peso', data:estado.historicoPeso, borderColor:'#3b82f6', tension:0.4, fill:true, backgroundColor:'rgba(59,130,246,0.1)' }] }, options:{ plugins:{ legend:{ display:false } } } }); }
+    function salvar() { localStorage.setItem('gymFlowV5_5', JSON.stringify(estado)); }
+    // Registra o Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('Motor Offline Ligado!', reg.scope))
+          .catch(err => console.log('Erro no Motor:', err));
+      });
+    }
+
+</script>
+</body>
+</html>
